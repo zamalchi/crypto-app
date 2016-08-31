@@ -104,6 +104,8 @@ def fonts(filename):
 ######################################### foo START #############################################
 ########################################################################################################
 
+used_tokens = []
+
 # comment
 @get('/index')
 def get_foo():
@@ -124,9 +126,13 @@ def get_foo():
     # code
     time = strftime("%H:%M:%S")
 
-    token = sha256.encrypt(secret)
+    date_salt = strftime("%d%m%y")
 
-    return template('index', time=time, token=token)
+    token = sha256.encrypt(date_salt + secret)
+
+    msg = "Check if token decryption is valid"
+
+    return template('index', time=time, msg=msg, token=token, records=[])
 
 ########################################################################################################
 ########################################################################################################
@@ -134,10 +140,48 @@ def get_foo():
 @post('/index')
 def post_foo():
 
+    from passlib.hash import sha256_crypt as sha256
+
+    from time import strftime
+
+
     # code
     print("POST RECEIVED")
 
-    redirect('index')
+    token = request.forms.get('token')
+
+    secret = ""
+    try:
+        f = open("../.secret")
+        secret = f.read().strip()
+        f.close()
+    except IOError:
+        return "Secret not found"
+
+    time = strftime("%H:%M:%S")
+
+    date_salt = strftime("%d%m%y")
+
+    verified = False
+
+    msg = "Token invalid"
+
+    records = []
+
+    if token in used_tokens:
+        msg = "Token already used"
+    else:
+        try:
+            verified = sha256.verify(date_salt + secret, token)
+        except ValueError:
+            msg = "Token malformed"
+
+        if verified:
+            msg = "Token verified"
+            used_tokens.append(token)
+            records = ['foo', 'bar', 'baz']
+
+    return template('index', time=time, msg=msg, token=token, records=records)
 
 ########################################################################################################
 ######################################### foo END ###############################################
