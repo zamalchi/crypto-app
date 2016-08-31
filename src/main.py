@@ -15,6 +15,11 @@ print("Python version: {0}".format(sys.version))
 
 from src.bottle import route, get, post, request, response, template, static_file, redirect, SimpleTemplate, url
 
+# PyCharm false import error : it works
+from passlib.hash import sha256_crypt as sha256
+
+from time import strftime
+
 ### APACHE #############################################################################################
 
 os.chdir(os.path.dirname(__file__))
@@ -86,6 +91,66 @@ def fonts(filename):
 #     response.set_cookie("foo", value)
 
 
+### HELPER FUNCTIONS ###################################################################################
+
+def readSecretFromFile():
+
+    secret_file = "../.secret"
+
+    secret = ""
+
+    try:
+        f = open(secret_file)
+        secret = f.read().strip()
+        f.close()
+
+    except IOError:
+        pass
+
+    return secret
+
+############################
+
+def getSaltyToken(secret):
+
+    date_salt = strftime("%d%m%y")
+
+    salty_secret = date_salt + secret
+
+    token = sha256.encrypt(salty_secret)
+
+    return token
+
+############################
+
+def verifySaltyToken(secret, token):
+
+    date_salt = strftime("%d%m%y")
+
+    salty_secret = date_salt + secret
+
+    try:
+        return sha256.verify(salty_secret, token)
+    except ValueError:
+        return False
+
+############################
+
+def readRecordsFromFile(filename):
+
+    records = []
+
+    dir = "../hours/"
+
+    try:
+        f = open(dir + filename)
+        records = filter(None, f.read().split("\n"))
+        f.close()
+    except IOError:
+        pass
+
+    return records
+
 ########################################################################################################
 ########################################################################################################
 ########################################################################################################
@@ -110,25 +175,12 @@ used_tokens = []
 @get('/index')
 def get_foo():
 
-    # PyCharm false import error : it works
-    from passlib.hash import sha256_crypt as sha256
+    secret = readSecretFromFile()
 
-    from time import strftime
-
-    secret = ""
-    try:
-        f = open("../.secret")
-        secret = f.read().strip()
-        f.close()
-    except IOError:
-        return "Secret not found"
+    token = getSaltyToken(secret)
 
     # code
     time = strftime("%H:%M:%S")
-
-    date_salt = strftime("%d%m%y")
-
-    token = sha256.encrypt(date_salt + secret)
 
     msg = "Check if token decryption is valid"
 
@@ -140,29 +192,15 @@ def get_foo():
 @post('/index')
 def post_foo():
 
-    from passlib.hash import sha256_crypt as sha256
-
-    from time import strftime
-
-
-    # code
     print("POST RECEIVED")
+
+    secret = readSecretFromFile()
 
     token = request.forms.get('token')
 
-    secret = ""
-    try:
-        f = open("../.secret")
-        secret = f.read().strip()
-        f.close()
-    except IOError:
-        return "Secret not found"
+    verified = verifySaltyToken(secret, token)
 
     time = strftime("%H:%M:%S")
-
-    date_salt = strftime("%d%m%y")
-
-    verified = False
 
     msg = "Token invalid"
 
@@ -170,16 +208,11 @@ def post_foo():
 
     if token in used_tokens:
         msg = "Token already used"
-    else:
-        try:
-            verified = sha256.verify(date_salt + secret, token)
-        except ValueError:
-            msg = "Token malformed"
 
-        if verified:
-            msg = "Token verified"
-            used_tokens.append(token)
-            records = ['foo', 'bar', 'baz']
+    elif verified:
+        msg = "Token verified"
+        records = readRecordsFromFile('2016-08-23-test')
+        used_tokens.append(token)
 
     return template('index', time=time, msg=msg, token=token, records=records)
 

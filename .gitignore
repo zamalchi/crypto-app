@@ -96,3 +96,6 @@ ENV/
 
 # files beginning with local
 local*
+
+# saved hours
+hours/
