@@ -1,4 +1,3 @@
-#!/usr/bin/python
 
 ########################################################################################################
 ########################################################################################################
@@ -9,6 +8,8 @@
 import os
 import smtplib
 import sys
+
+print("Python version: {0}".format(sys.version))
 
 ### IMPORTS ############################################################################################
 
@@ -107,12 +108,25 @@ def fonts(filename):
 @get('/index')
 def get_foo():
 
+    # PyCharm false import error : it works
+    from passlib.hash import sha256_crypt as sha256
+
     from time import strftime
+
+    secret = ""
+    try:
+        f = open("../.secret")
+        secret = f.read().strip()
+        f.close()
+    except IOError:
+        return "Secret not found"
 
     # code
     time = strftime("%H:%M:%S")
 
-    return template('index', time=time)
+    token = sha256.encrypt(secret)
+
+    return template('index', time=time, token=token)
 
 ########################################################################################################
 ########################################################################################################
