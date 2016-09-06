@@ -29,4 +29,4 @@ smtpInit(mailTo, mailFrom)
     # run(reloader=True, host='localhost', port=port, debug=True)
 # else:
 
-run(host='localhost', port=port, debug=True)
+run(host='172.16.1.254', port=port, debug=True)

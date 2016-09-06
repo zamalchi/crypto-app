@@ -84,8 +84,8 @@ def readCrypto():
         f = open('../config/crypto')
 
         key, iv = filter(None, f.read().split("\n"))
-
-        f.close()
+        
+	f.close()
 
         return (key, iv)
 
