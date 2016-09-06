@@ -225,13 +225,31 @@ def post_foo():
 @get('/receive')
 def receive_records():
 
+    name = request.query['n']
+
+    date = request.query['d']
+
     b64 = request.query['r']
 
-    decrypted = getDecodedString(b64).split("\n")
+    decrypted = filter(None, getDecodedString(b64).split("\n"))
 
-    res = ''.join(['<p>{0}</p>'.format(r) for r in decrypted])
+    string = ''.join(decrypted)
 
-    return res
+    # if unable to decrypt, name will not show up in the string
+    if name not in string:
+        return "<h2>Couldn't decrypt records</h2>"
+
+    else:
+        filename = "../hours/" + date + "-" + name
+
+        f = open(filename, 'w')
+
+        for r in decrypted:
+            f.write(r + "\n")
+
+        f.close()
+
+        return "<h2>Saved to {0}-{1}</h2>".format(date, name)
 
 
 
