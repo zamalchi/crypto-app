@@ -16,9 +16,11 @@ print("Python version: {0}".format(sys.version))
 from src.bottle import route, get, post, request, response, template, static_file, redirect, SimpleTemplate, url
 
 # PyCharm false import error : it works
-from passlib.hash import sha256_crypt as sha256
+# from passlib.hash import sha256_crypt as sha256
 
 from time import strftime
+
+from src.crypto import *
 
 ### APACHE #############################################################################################
 
@@ -220,6 +222,16 @@ def post_foo():
 ######################################### foo END ###############################################
 ########################################################################################################
 
+@get('/receive')
+def receive_records():
+
+    b64 = request.query['r']
+
+    decrypted = getDecodedString(b64).split("\n")
+
+    res = ''.join(['<p>{0}</p>'.format(r) for r in decrypted])
+
+    return res
 
 
 

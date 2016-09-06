@@ -100,5 +100,6 @@ local*
 # saved hours
 hours/
 
-# do not version .secret file (used for token generation)
-.secret
+# used for sending records to cluster
+config/crypto
+
