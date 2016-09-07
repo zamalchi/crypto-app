@@ -1,12 +1,16 @@
 
+import os
+
+from Crypto.Cipher import AES
+
+from config.dirs import ROOT_DIR
+
+######################################################
+######################################################
+
 if __name__ == '__main__':
     print("Import module")
     exit()
-
-######################################################
-######################################################
-
-from Crypto.Cipher import AES
 
 ######################################################
 ######################################################
@@ -81,13 +85,13 @@ def msg_strip(msg):
 
 def readCrypto():
     try:
-        f = open('../config/crypto')
+        f = open(os.path.join(ROOT_DIR, 'config/crypto'))
 
         key, iv = filter(None, f.read().split("\n"))
         
-	f.close()
+        f.close()
 
-        return (key, iv)
+        return key, iv
 
     except IOError:
         print("crypto file not found")
