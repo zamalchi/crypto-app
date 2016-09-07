@@ -8,12 +8,12 @@ from src.main import *
 
 # argparse
 parser = argparse.ArgumentParser()
-parser.add_argument('-a', help = "Server address", action="store", dest="a", required = True)
+parser.add_argument('-h', help = "Host address", action="store", dest="h", required = True)
 parser.add_argument('-p', help = "Port number", action="store", dest="p", required = True)
 
 args = parser.parse_args()
 
 port = args.p
-address = args.a
+host = args.h
 
-run(host=address, port=port, debug=True)
+run(host=host, port=port, debug=True)
