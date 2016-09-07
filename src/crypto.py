@@ -1,16 +1,16 @@
 
-import os
+if __name__ == '__main__':
+    print("Import module")
+    exit()
+
+######################################################
+######################################################
 
 from Crypto.Cipher import AES
 
 from config.dirs import ROOT_DIR
 
-######################################################
-######################################################
-
-if __name__ == '__main__':
-    print("Import module")
-    exit()
+import os
 
 ######################################################
 ######################################################
@@ -87,12 +87,17 @@ def readCrypto():
     try:
         f = open(os.path.join(ROOT_DIR, 'config/crypto'))
 
-        key, iv = filter(None, f.read().split("\n"))
-        
+        data = f.read().split("\n")
+
+        key, iv = data[0], data[1]
+
         f.close()
 
         return key, iv
 
     except IOError:
         print("crypto file not found")
+        return None
+    except ValueError:
+        print("invalid crypto file formatting")
         return None
