@@ -91,6 +91,9 @@ def readCrypto():
 
         key, iv = data[0], data[1]
 
+        if len(key) != 16 or len(iv) != 16:
+            raise ValueError
+
         f.close()
 
         return key, iv
