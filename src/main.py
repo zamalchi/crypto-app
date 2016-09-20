@@ -104,11 +104,16 @@ def receive_records():
 
     date = request.query['d']
 
-    b64 = request.query['r']
+    records = request.query['r']
 
-    decrypted = filter(None, getDecodedString(b64).split("\n"))
+    address = getDecodedString(request.query['a'])
+
+    decrypted = filter(None, getDecodedString(records).split("\n"))
 
     validated = False
+
+    ack_msg = ""
+
     try:
         # check if each record is a valid record
         for r in decrypted:
@@ -123,7 +128,7 @@ def receive_records():
 
     # if unable to decrypt, name will not show up in the string
     if name not in string or not validated:
-        return "<h2>Couldn't decrypt records</h2>"
+        ack_msg = "Couldn't decrypt records"
 
     else:
         filename = os.path.join(Record.hoursDir, date + "-" + name)
@@ -135,7 +140,9 @@ def receive_records():
 
         f.close()
 
-        return "<h2>Saved to {0}-{1}</h2>".format(date, name)
+        ack_msg = "Saved to {0}-{1}".format(date, name)
+
+    redirect(address + "?msg={0}".format(ack_msg))
 
 ########################################################################################################
 ########################################################################################################
