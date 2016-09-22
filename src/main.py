@@ -142,6 +142,8 @@ def receive_records():
 
         ack_msg = "Saved to {0}-{1}".format(date, name)
 
+        ack_msg = getEncodedString(ack_msg)
+
     redirect(address + "?msg={0}".format(ack_msg))
 
 ########################################################################################################
